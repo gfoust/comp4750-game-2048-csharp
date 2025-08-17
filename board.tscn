@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8bwo2u5bcsp6"]
+
+[ext_resource type="PackedScene" uid="uid://bu0salcqrt4r6" path="res://tile.tscn" id="1_p0ybc"]
+[ext_resource type="Script" uid="uid://dl1prfmoa3t43" path="res://Board.cs" id="1_psm7c"]
+
+[node name="Board" type="Node2D"]
+script = ExtResource("1_psm7c")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 481.0
+offset_bottom = 481.0
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="Tile" parent="." instance=ExtResource("1_p0ybc")]
+position = Vector2(158, 191)
+Power = 1
