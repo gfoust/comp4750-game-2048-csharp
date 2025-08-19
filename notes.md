@@ -6,6 +6,8 @@
   + Everything inside `if (this[src.Current] != null)` goes to `slideOne`
   + Note `slideOne` must return bool to update `changed`
 - Update `slideOne` with logic for merging tiles
+  + Discuss z_order
+  + Set board's z_order to -100
 - Update `moveTiles` to iterate over both grids
 - Update `onTileMoveDone` to delete merged
 - Update `Tile` to animate color changes
