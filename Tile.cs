@@ -30,7 +30,7 @@ public partial class Tile : Node2D
     set
     {
       power = value;
-      updateTile();
+      updateTile(true);
     }
   }
 
@@ -44,21 +44,30 @@ public partial class Tile : Node2D
   {
     square = GetNode<ColorRect>("Square");
     label = GetNode<Label>("Square/Label");
-    updateTile();
+    updateTile(false);
   }
 
 
-  private void updateTile()
+  private void updateTile(bool animate)
   {
     if (square == null) return;
 
+    Color color;
     if (Power > 0 && Power < _colors.Length)
     {
-      square.Color = _colors[Power];
+      color = _colors[Power];
     }
     else
     {
-      square.Color = _colors[0];
+      color = _colors[0];
+    }
+    if (animate)
+    {
+      CreateTween().TweenProperty(square, "color", color, 0.3333);
+    }
+    else
+    {
+      square.Color = color;
     }
     label.Text = Math.Pow(2, Power).ToString();
   }

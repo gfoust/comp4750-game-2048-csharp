@@ -1,44 +1,12 @@
-# Stage 2
+# Stage 3
 
-## Get rid of individual tile
-
-- Delete tile from board
-- This will break Board
-	+ In `_Input` change if branches to `pass`
-	+ In `moveTiles` remove `tween_property`
-
-## Add tiles dynamically
-
-- Make `GRID_SIZE` (int)
-- Make/initialize `grid` variable
-- Make `addTileToGrid`
-  + Save `busy = false` line for later
-  + Make `empty_tiles` variable
-  + Put in nth empty slot, where n is random
-  + Note: NOT `Tile.new()`; instead...
-- Make `make_tile`
-  + Make `tile_scene` variable
-  + Create / initialize tile
-- Add input for `ui_accept` to call `add_tile_to_grid`
-
-## Make tiles slide
-
-- Discuss abstraction, leading to iterator
-  + Discuss C# iterators (IEnumerator)
-  + Discuss our iterator interface (iterate over vectors)
-- Make `Dir` enum
-- Make `SliceItr` iterator
-  + Implement interface
-  + Replace with `slice` method and `yield`
-- Make `TileGrid` struct
-  + Discuss indexers
-- Make `slide` method
-  + Note: rearranging array has no visual effect
-- Revisit `moveTile` (=> `moveTiles`)
-  + Tween all tiles positions
-  + Don't cover tween properties yet
-- Debugging
-  - Add `addTileToGrid()` to `_Ready`
-  - Add `busy = false` to end of `addTileToGrid`
-  - Add `set_parallel`
-  - Add trans/ease
+## Create a "back grid"
+- Make `backgrid` variable
+- Move slide logic into `slideOne`; rename `slide` to `slideAll`
+  + Everything inside `if (this[src.Current] != null)` goes to `slideOne`
+  + Note `slideOne` must return bool to update `changed`
+- Update `slideOne` with logic for merging tiles
+- Update `moveTiles` to iterate over both grids
+- Update `onTileMoveDone` to delete merged
+- Update `Tile` to animate color changes
+  + Use `init` parameter to distinguish between initial value and change

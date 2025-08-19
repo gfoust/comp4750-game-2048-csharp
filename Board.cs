@@ -15,6 +15,7 @@ public partial class Board : Node2D
 
   bool busy = false;
   TileGrid grid = new TileGrid(GRID_SIZE);
+  TileGrid backgrid = new TileGrid(GRID_SIZE);
   int emptyTiles = GRID_SIZE * GRID_SIZE;
   Random random = new Random();
   PackedScene tileScene = GD.Load<PackedScene>("res://tile.tscn");
@@ -50,7 +51,7 @@ public partial class Board : Node2D
       dir = Dir.Down;
     }
 
-    if (dir.HasValue && slide(dir.Value))
+    if (dir.HasValue && slideAll(dir.Value))
     {
       moveTiles();
     }
@@ -68,18 +69,40 @@ public partial class Board : Node2D
     {
       for (int j = 0; j < GRID_SIZE; ++j)
       {
-        if (grid[i, j] != null)
+        foreach (var g in new TileGrid[]{ grid, backgrid })
         {
-          tween.TweenProperty(
-            grid[i, j],
-            "position",
-            new Vector2(i * TILE_SIZE, j * TILE_SIZE),
-            0.3333
-          );
+          if (g[i, j] != null)
+          {
+            tween.TweenProperty(
+              g[i, j],
+              "position",
+              new Vector2(i * TILE_SIZE, j * TILE_SIZE),
+              0.3333
+            );
+          }
         }
       }
     }
-    tween.Finished += addTileToGrid;
+    tween.Finished += onTileMoveFinished;
+  }
+
+
+  private void onTileMoveFinished()
+  {
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+      for (int j = 0; j < GRID_SIZE; ++j)
+      {
+        var condemned = backgrid[i, j];
+        if (condemned != null)
+        {
+          backgrid[i, j] = null;
+          RemoveChild(condemned);
+          condemned.QueueFree();
+        }
+      }
+    }
+    addTileToGrid();
   }
 
 
@@ -118,7 +141,7 @@ public partial class Board : Node2D
   }
 
 
-  private bool slide(Dir dir)
+  private bool slideAll(Dir dir)
   {
     bool changed = false;  // Wait until you know why you need it
 
@@ -130,17 +153,51 @@ public partial class Board : Node2D
       var src = slice(dir, i);
       while (src.MoveNext())
       {
-        if (grid[src.Current] != null)
+        if (grid[src.Current] != null && slideOne(dst, src))
         {
-          if (src.Current != dst.Current)
-          {
-            grid[dst.Current] = grid[src.Current];
-            grid[src.Current] = null;
-            changed = true;
-          }
-          dst.MoveNext();
+          changed = true;
         }
       }
+    }
+
+    return changed;
+  }
+
+
+  private bool slideOne(IEnumerator<Vector2I> dst, IEnumerator<Vector2I> src)
+  {
+    bool changed;
+
+    // Same thing
+    if (src.Current == dst.Current)
+    {
+      changed = false; // we want dst to stay behind
+    }
+
+    // Different, first one null
+    else if (grid[dst.Current] == null)
+    {
+      grid[dst.Current] = grid[src.Current];
+      grid[src.Current] = null;
+      changed = true;
+    }
+
+    // Different, not null, same power
+    else if (grid[dst.Current]!.Power == grid[src.Current]!.Power)
+    {
+      backgrid[dst.Current] = grid[src.Current];
+      grid[src.Current] = null;
+      backgrid[dst.Current]!.ZIndex = -10;
+      grid[dst.Current]!.Power += 1;
+      ++emptyTiles;
+      changed = true;
+    }
+
+    // Different, not null, different power
+    else
+    {
+      dst.MoveNext();
+      changed = slideOne(dst, src);
     }
 
     return changed;
