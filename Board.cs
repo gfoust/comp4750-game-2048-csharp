@@ -14,17 +14,10 @@ public partial class Board : Node2D
 
 
   bool busy = false;
-  Tile?[,] grid = new Tile[GRID_SIZE, GRID_SIZE];
+  TileGrid grid = new TileGrid(GRID_SIZE);
   int emptyTiles = GRID_SIZE * GRID_SIZE;
   Random random = new Random();
   PackedScene tileScene = GD.Load<PackedScene>("res://tile.tscn");
-
-
-  public Tile? this[Vector2I pos]
-  {
-    get => grid[pos.X, pos.Y];
-    set => grid[pos.X, pos.Y] = value;
-  }
 
 
   public override void _Ready()
@@ -137,12 +130,12 @@ public partial class Board : Node2D
       var src = slice(dir, i);
       while (src.MoveNext())
       {
-        if (this[src.Current] != null)
+        if (grid[src.Current] != null)
         {
           if (src.Current != dst.Current)
           {
-            this[dst.Current] = this[src.Current];
-            this[src.Current] = null;
+            grid[dst.Current] = grid[src.Current];
+            grid[src.Current] = null;
             changed = true;
           }
           dst.MoveNext();
@@ -186,6 +179,7 @@ public partial class Board : Node2D
   }
 
 
+  // For Illustration Purposes
   class SliceIterator : IEnumerator<Vector2I>
   {
     private Dir dir;
@@ -264,5 +258,28 @@ public partial class Board : Node2D
     {
       current = begin - inc;
     }
+  }
+}
+
+
+public struct TileGrid
+{
+  private Tile?[,] tiles;
+
+  public TileGrid(int gridSize)
+  {
+    tiles = new Tile[gridSize, gridSize];
+  }
+
+  public Tile? this[int x, int y]
+  {
+    get => tiles[x, y];
+    set => tiles[x, y] = value;
+  }
+
+  public Tile? this[Vector2I pos]
+  {
+    get => tiles[pos.X, pos.Y];
+    set => tiles[pos.X, pos.Y] = value;
   }
 }

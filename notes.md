@@ -29,7 +29,9 @@
 - Make `Dir` enum
 - Make `SliceItr` iterator
   + Implement interface
-	+ Discuss yield
+  + Replace with `slice` method and `yield`
+- Make `TileGrid` struct
+  + Discuss indexers
 - Make `slide` method
   + Note: rearranging array has no visual effect
 - Revisit `moveTile` (=> `moveTiles`)
