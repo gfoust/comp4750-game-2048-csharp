@@ -320,7 +320,7 @@ public partial class Board : Node2D
 }
 
 
-public struct TileGrid
+public struct TileGrid : IEnumerable
 {
   private Tile?[,] tiles;
 
@@ -340,4 +340,10 @@ public struct TileGrid
     get => tiles[pos.X, pos.Y];
     set => tiles[pos.X, pos.Y] = value;
   }
+
+  IEnumerator IEnumerable.GetEnumerator()
+  {
+    return tiles.GetEnumerator();
+  }
+
 }
