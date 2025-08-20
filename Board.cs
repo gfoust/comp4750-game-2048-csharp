@@ -186,9 +186,10 @@ public partial class Board : Node2D
     else if (grid[dst.Current]!.Power == grid[src.Current]!.Power)
     {
       backgrid[dst.Current] = grid[src.Current];
+      backgrid[dst.Current]!.ZIndex = 5;
       grid[src.Current] = null;
-      backgrid[dst.Current]!.ZIndex = -10;
       grid[dst.Current]!.Power += 1;
+      dst.MoveNext();
       ++emptyTiles;
       changed = true;
     }
