@@ -35,9 +35,10 @@
 ## Detect when game is won
 - Add game_over(bool) signal to board
 - Add `goal_reached` function
-  + Export a goal variable for goal
-- Add branch to end of `_on_tile_move_done` to emit signal when goal reached
-  + Point out that listening will remain false
+  + Export a goal variable for goal (what power we have to reach to win)
+  + Check to see if any tile has reached goal
+- Add branch to end of `onTileMoveFinished` to emit signal when goal reached
+  + Point out that `busy` will remain true
 
 ## Add game over logic
 - Add script to game
@@ -49,10 +50,7 @@
 - Test win and reset
 
 ## Detect when game is lost
-- Note that `empty_tiles == 0` is not enough
-- Add `no_more_moves_possible` function
-- Remove return
-  + Discuss issue with breaking out of nested loop
-  + Allow loop to finish
-- Move `listening = true` to end
-- Add branch to test for lost game at the end
+- Note that `emptyTiles == 0` is not enough
+- Add `noMovesPossible` function
+- Add branch to test for lost game at the end of `onTileMoveFinished`
+  + Must be after `addTileToGrid`

@@ -8,10 +8,14 @@ public partial class Board : Node2D
 {
   public enum Dir { Up, Down, Left, Right };
 
+  [Signal]
+  public delegate void GameOverEventHandler(bool win);
+
+  [Export(PropertyHint.Range, "2,11")]
+  public int Goal = 11;
 
   const int GRID_SIZE = 4;
   const float TILE_SIZE = 120;
-
 
   bool busy = false;
   TileGrid grid = new TileGrid(GRID_SIZE);
@@ -25,7 +29,6 @@ public partial class Board : Node2D
   {
     addTileToGrid();
   }
-
 
 
   public override void _Input(InputEvent @event)
@@ -58,6 +61,25 @@ public partial class Board : Node2D
   }
 
 
+  public void Reset()
+  {
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+      for (int j = 0; j < GRID_SIZE; ++j)
+      {
+        if (grid[i, j] != null)
+        {
+          grid[i, j]!.QueueFree();
+          grid[i, j] = null;
+        }
+      }
+    }
+    emptyTiles = GRID_SIZE * GRID_SIZE;
+    busy = false;
+    addTileToGrid();
+  }
+
+
   private void moveTiles()
   {
     busy = true;
@@ -69,7 +91,7 @@ public partial class Board : Node2D
     {
       for (int j = 0; j < GRID_SIZE; ++j)
       {
-        foreach (var g in new TileGrid[]{ grid, backgrid })
+        foreach (var g in new TileGrid[] { grid, backgrid })
         {
           if (g[i, j] != null)
           {
@@ -102,13 +124,27 @@ public partial class Board : Node2D
         }
       }
     }
-    addTileToGrid();
+    if (goalReached())
+    {
+      EmitSignal(SignalName.GameOver, true);
+    }
+    else
+    {
+      addTileToGrid();
+      if (noMovesPossible())
+      {
+        EmitSignal(SignalName.GameOver, false);
+      }
+      else
+      {
+        busy = false;
+      }
+    }
   }
 
 
   private void addTileToGrid()
   {
-    busy = false;
     if (emptyTiles > 0)
     {
       int n = random.Next(emptyTiles);
@@ -202,6 +238,36 @@ public partial class Board : Node2D
     }
 
     return changed;
+  }
+
+
+  private bool goalReached()
+  {
+    foreach (Tile tile in grid)
+    {
+      if (tile != null && tile.Power == Goal)
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  private bool noMovesPossible()
+  {
+    if (emptyTiles != 0) return false;
+
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+      for (int j = 0; j < GRID_SIZE - 1; ++j)
+      {
+        if (grid[i, j]!.Power == grid[i, j + 1]!.Power) return false;
+        if (grid[j, i]!.Power == grid[j + 1, i]!.Power) return false;
+      }
+    }
+
+    return true;
   }
 
 
@@ -345,5 +411,4 @@ public struct TileGrid : IEnumerable
   {
     return tiles.GetEnumerator();
   }
-
 }
