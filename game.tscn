@@ -29,7 +29,6 @@ horizontal_alignment = 1
 
 [node name="Board" parent="." instance=ExtResource("1_80nbo")]
 position = Vector2(8, 88)
-Goal = 3
 
 [node name="GameOverScreen" type="CanvasLayer" parent="."]
 
