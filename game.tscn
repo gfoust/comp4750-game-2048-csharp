@@ -28,7 +28,7 @@ label_settings = ExtResource("1_e2o6t")
 horizontal_alignment = 1
 
 [node name="Board" parent="." instance=ExtResource("1_80nbo")]
-position = Vector2(8, 88)
+position = Vector2(9, 89)
 
 [node name="GameOverScreen" type="CanvasLayer" parent="."]
 

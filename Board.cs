@@ -16,13 +16,23 @@ public partial class Board : Node2D
 
   const int GRID_SIZE = 4;
   const float TILE_SIZE = 120;
-
+  readonly int[][] POWER_PROBABILITIES = {
+    [100,  0,  0,  0],
+    [100,  0,  0,  0],
+    [90,  10,  0,  0],
+    [90,  10,  0,  0],
+    [80,  15,  5,  0],
+    [80,  15,  5,  0],
+    [70,  15,  5,  5],
+    [70,  15,  5,  5],
+  };
   bool busy = false;
   TileGrid grid = new TileGrid(GRID_SIZE);
   TileGrid backgrid = new TileGrid(GRID_SIZE);
   int emptyTiles = GRID_SIZE * GRID_SIZE;
   Random random = new Random();
   PackedScene tileScene = GD.Load<PackedScene>("res://tile.tscn");
+  int maxPower = 1;
 
 
   public override void _Ready()
@@ -167,10 +177,28 @@ public partial class Board : Node2D
   }
 
 
+  private int pickPower()
+  {
+    var n = random.Next(100);
+    var total = 0;
+    var probs = POWER_PROBABILITIES[maxPower - 1];
+    for (int i = 0; i < probs.Length; ++i)
+    {
+      total += probs[i];
+      if (n < total)
+      {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+
+
   private Tile makeTile(int i, int j)
   {
     Tile tile = tileScene.Instantiate<Tile>();
     tile.Position = new Vector2(i * TILE_SIZE, j * TILE_SIZE);
+    tile.Power = pickPower();
     AddChild(tile);
     --emptyTiles;
     return tile;
@@ -224,7 +252,11 @@ public partial class Board : Node2D
       backgrid[dst.Current] = grid[src.Current];
       backgrid[dst.Current]!.ZIndex = 5;
       grid[src.Current] = null;
-      grid[dst.Current]!.Power += 1;
+      int pow = grid[dst.Current]!.Power += 1;
+      if (pow > maxPower)
+      {
+        maxPower = pow;
+      }
       dst.MoveNext();
       ++emptyTiles;
       changed = true;
@@ -243,14 +275,7 @@ public partial class Board : Node2D
 
   private bool goalReached()
   {
-    foreach (Tile tile in grid)
-    {
-      if (tile != null && tile.Power == Goal)
-      {
-        return true;
-      }
-    }
-    return false;
+    return maxPower >= Goal;
   }
 
 
